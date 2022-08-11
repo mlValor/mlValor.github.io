@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>【转载+翻译】AI之行为树：它们是如何工作的 | migame的博客</title><meta name="keywords" content="架构认知,行为树"><meta name="author" content="migame"><meta name="copyright" content="migame"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="——行为树简介，包含示例和深入描述，以及创建强大的表达树的一些技巧。  注意事项： 原文地址：(https:&#x2F;&#x2F;www.gamedeveloper.com&#x2F;programming&#x2F;behavior-trees-for-ai-how-they-work)，英语实力过硬可以直接看原文 适用人群：不清楚行为树或者想要简单入门行为树的小伙伴们 说明：文章内容都是机翻，一些比较怪的被我“本土化”了，所以可能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【转载+翻译】AI之行为树：它们是如何工作的">
+<meta property="og:url" content="http://example.com/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/index.html">
+<meta property="og:site_name" content="migame的博客">
+<meta property="og:description" content="——行为树简介，包含示例和深入描述，以及创建强大的表达树的一些技巧。  注意事项： 原文地址：(https:&#x2F;&#x2F;www.gamedeveloper.com&#x2F;programming&#x2F;behavior-trees-for-ai-how-they-work)，英语实力过硬可以直接看原文 适用人群：不清楚行为树或者想要简单入门行为树的小伙伴们 说明：文章内容都是机翻，一些比较怪的被我“本土化”了，所以可能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg">
+<meta property="article:published_time" content="2022-01-09T13:52:49.000Z">
+<meta property="article:modified_time" content="2022-08-11T11:56:53.561Z">
+<meta property="article:author" content="migame">
+<meta property="article:tag" content="架构认知">
+<meta property="article:tag" content="行为树">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【转载+翻译】AI之行为树：它们是如何工作的',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-08-11 19:56:53'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">95</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">33</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">migame的博客</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【转载+翻译】AI之行为树：它们是如何工作的</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-09T13:52:49.000Z" title="发表于 2022-01-09 21:52:49">2022-01-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-08-11T11:56:53.561Z" title="更新于 2022-08-11 19:56:53">2022-08-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/">架构认知</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/">行为树</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>24分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【转载+翻译】AI之行为树：它们是如何工作的"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><strong>——行为树简介，包含示例和深入描述，以及创建强大的表达树的一些技巧。</strong></p>
+<blockquote>
+<p>注意事项：</p>
+<p>原文地址：(<a target="_blank" rel="noopener" href="https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work)%EF%BC%8C%E8%8B%B1%E8%AF%AD%E5%AE%9E%E5%8A%9B%E8%BF%87%E7%A1%AC%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E7%9C%8B%E5%8E%9F%E6%96%87">https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work)，英语实力过硬可以直接看原文</a></p>
+<p>适用人群：不清楚行为树或者想要简单入门行为树的小伙伴们</p>
+<p>说明：文章内容都是机翻，一些比较怪的被我“本土化”了，所以可能会有丁点的不同，带“PS”字眼的，有部分是私货以及个人的理解，可以忽视</p>
+</blockquote>
+<h3 id="介绍（Introduction）"><a href="#介绍（Introduction）" class="headerlink" title="介绍（Introduction）"></a>介绍（Introduction）</h3><p>虽然互联网上有很多行为树的教程和指南，但在探索它们是否适用于Project Zomboid**（PS：这个作者开发的一个游戏） **项目时，我一次又一次地遇到了同样的问题。我阅读的许多指南都非常注重行为树的实际代码实现，或者纯粹关注无上下文的通用节点流，而没有任何实际的应用示例，如下图所示：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-0.png" alt="1-0"></p>
+<p>虽然它们在帮助我理解行为树的核心原则方面非常有价值，但我发现自己处于这样一种情况：尽管我知道行为树是如何运行的，但我实际上并不知道应该为游戏创建什么样的节点，或者一个真正完全开发的行为树应该是什么样子。</p>
+<p>我花了大量时间进行试验。由于Project Zomboid是用Java语言编写的，所以我使用了非常棒的JBT-Java行为树(<a target="_blank" rel="noopener" href="http://sourceforge.net/projects/jbt/)%E5%9B%A0%E6%AD%A4%E6%88%91%E4%B8%8D%E5%BF%85%E5%85%B3%E5%BF%83%E5%AE%9E%E9%99%85%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E3%80%82**%EF%BC%88PS%EF%BC%9A%E8%BF%99%E9%87%8C%E4%BD%9C%E8%80%85%E8%AE%B2%E7%9A%84%E5%BA%94%E8%AF%A5%E6%98%AF%E6%8C%87%E8%87%AA%E5%B7%B1%E5%8E%BB%E7%BC%96%E5%86%99%E4%B8%80%E5%A5%97%E8%A1%8C%E4%B8%BA%E6%A0%91%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%EF%BC%89**%E7%84%B6%E8%80%8C%EF%BC%8C%E6%9C%89%E5%BE%88%E5%A4%9A%E6%95%99%E7%A8%8B%E5%85%B3%E6%B3%A8%E8%BF%99%E4%B8%80%E7%82%B9%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%9C%A8%E8%AE%B8%E5%A4%9A%E5%B8%B8%E7%94%A8%E6%B8%B8%E6%88%8F%E5%BC%95%E6%93%8E%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0%E3%80%82">http://sourceforge.net/projects/jbt/)因此我不必关心实际的代码实现。**（PS：这里作者讲的应该是指自己去编写一套行为树框架代码）**然而，有很多教程关注这一点，以及在许多常用游戏引擎中的实现。</a></p>
+<p>有可能我在这里详述的一些更具体的装饰节点类型实际上是 JBT 原生的，而不是一般的行为树概念，但我发现它们是 Project Zomboid 行为树工作方式的关键组成部分，所以如果您的特定行为树不支持它们，那么我建议去实现它们，这很值得。</p>
+<p>我并不觉得自己是这方面的专家，但是在 Project Zomboid NPC 的开发过程中，我感觉自己收获颇丰，所以我这里会列出一些点，这些点可以不至于让后来者走太多弯路，或者至少能知道我们可以用行为树来完成什么。我这里并不打算深入去研究它的实现，所以这里只会给出一些在 Project Zomboid 中使用的抽象示例。</p>
+<h3 id="基础知识（Basics）"><a href="#基础知识（Basics）" class="headerlink" title="基础知识（Basics）"></a>基础知识（Basics）</h3><p>顾名思义，与有限状态机或用于 AI 编程的其他系统不同，行为树是<strong>控制 AI 实体决策流程</strong>的<strong>分层节点树</strong>。在树的范围内，<strong>叶子</strong>是控制 AI 实体的实际命令，形成<strong>分支</strong>的是各种类型的<strong>实用节点</strong>，它们控制 AI 沿着树向下走，以达到<strong>最适合该情况的命令序列</strong>。</p>
+<p>树可以非常深，通过节点调用执行特定功能的子树，并且允许开发人员创建<strong>行为库</strong>，这些<strong>行为库</strong>可以连接在一起以<strong>提供非常有说服力的 AI  行为</strong>。开发是<strong>高度可迭代的</strong>，在这里，您可以从形成基本的行为开始，然后创建新分支来处理实现目标的替代方法，分支按其意愿排序，<strong>允许 AI 在特定行为失败时采用回退策略</strong>。<font color="red"><strong>这是他们真正闪耀的地方！</strong></font></p>
+<h3 id="数据驱动VS代码驱动（Data-Driven-vs-Code-Driven）"><a href="#数据驱动VS代码驱动（Data-Driven-vs-Code-Driven）" class="headerlink" title="数据驱动VS代码驱动（Data Driven vs Code Driven）"></a>数据驱动VS代码驱动（Data Driven vs Code Driven）</h3><p>这一区别与本指南几乎没有关系，但是应该注意，行为树有许多不同的实现方式。主要区别是在于树是否在代码库外部定义，可能是 XML 或专有格式并使用外部编辑器进行操作，或者是树的结构是通过嵌套类实例直接在代码中定义。</p>
+<p>JBT 使用了这两者的一种奇怪的混合体，其中提供了一个编辑器，允许您可视化构建您的行为树，但是导出工具实际上会生成 java 代码来表示代码库中的行为树。</p>
+<p>无论执行方式是什么，<strong>叶子节点</strong>（即实际执行游戏特定业务并控制您的角色或检查角色的情况或环境的节点）是需要您自己在代码中去定义。不管你是使用母语还是使用Lua或Python等脚本语言都可以。然后，您的树可以利用这些来提供复杂的行为。这些节点的表现力非常强，有时更像是一个标准库来操作树本身内的数据，而不仅仅是简单的字符命令，这真的让我兴奋不已。</p>
+<h3 id="树的遍历（Tree-Traversal）"><a href="#树的遍历（Tree-Traversal）" class="headerlink" title="树的遍历（Tree Traversal）"></a>树的遍历（Tree Traversal）</h3><p>行为树的核心方面在于与代码库方法不同，树中的的特定节点或分支可能需要很长时间才能完成。在行为树的基本实现中，系统每帧都会从树的根节点向下遍历<strong>（PS：相对于传统行为树，事件驱动的行为树不需要每帧从根节点遍历。它们保持当前状态，只有在实际需要时才继续遍历。例如<a target="_blank" rel="noopener" href="https://github.com/meniku/NPBehave">NPBehave</a>）</strong>，测试树下的每个节点看哪个处于活跃状态，重新检查沿途的每一个节点，直到到达当前活跃的节点并再次选中它。</p>
+<p><font color="red"><strong>这不是一种非常有效的处理方式，尤其是当行为树在开发过程中随着其开发和扩展而变得更深时。</strong></font>我想说的是，您实现的任何行为树都应该存储任何当前正在处理的节点，这样它们就可以直接在行为树引擎中进行标记，而不是每次遍历整个树。值得庆幸的是，JBT 属于这一类。</p>
+<h3 id="流动（Flow）"><a href="#流动（Flow）" class="headerlink" title="流动（Flow）"></a>流动（Flow）</h3><p>行为树由几种类型的节点组成，但是某些核心功能对于行为树中的任何类型的节点都是通用的。这是因为他们可以返回三种状态之一。 （根据行为树的实现，可能有三个以上的返回状态，但是我在实践中还没有使用过其中的任何一个，并且它们与当前主题并不相关）三种常见的状态如下：</p>
+<p><strong>成功（Success） 失败(Failure)    运行(Running)</strong></p>
+<p>顾名思义，前两个通知它们的父节点其操作是成功还是失败。第三种意味着尚未确定成功或失败，并且该节点仍在运行。下次该树被选择时，该节点将再次被选择，此时它将再次有机会成功、失败或继续运行。</p>
+<p>此功能是行为树功能的关键，因为它允许在游戏中持续许多次的去处理一个节点。例如，在<strong>Walk节点</strong>试图计算路径期间，它会提供<strong>Running状态</strong>。如果由于某种原因寻路失败，或者在行走过程中出现了一些其他复杂情况以阻止角色到达目标位置，则节点将<strong>Failure状态</strong>返回给父节点。如果在任何时候角色的当前位置等于目标位置，则返回<strong>Success状态</strong>，表示Walk命令成功执行。</p>
+<p>这意味着这个单独的节点有一个明确的成功和失败契约，并且任何使用这个节点的树都可以确保它从这个节点接收到的结果。然后，这些状态传播并定义树的流，以提供沿树向下的事件序列和不同的执行路径，以确保 AI 的行为符合预期。</p>
+<p>有了这个共同的共享功能，行为树节点有三种主要原型：</p>
+<p><strong>复合节点（Composite） 装饰者节点（Decorator） 叶子节点（Leaf）</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-1.png" alt="1-1"></p>
+<h4 id="复合节点（Composite）"><a href="#复合节点（Composite）" class="headerlink" title="复合节点（Composite）"></a>复合节点（Composite）</h4><p>这里我们将讨论在行为树中最常见的复合节点。还有其他的，但我们将介绍一些基本的知识，这些知识应该可以帮助您编写一些相当复杂的行为树。</p>
+<p><strong>Sequence（PS：序列组合器，一遇到子结点返回失败则其本身返回失败，否则继续执行下一个子结点。全部成功则其本身返回成功）</strong></p>
+<p>行为树中最简单的组合节点，它们的名称说明了一切。序列将按顺序访问每个子节点，从第一个开始，当访问成功时将调用第二个子节点，依此类推。如果任何子节点失败，它会立即将失败返回给父节点。如果序列中的最后一个子节点成功，则该序列将向其父节点返回成功。</p>
+<p>重要的是要明确行为树中的节点类型有相当广泛的应用。Sequence最明显的用法是<font color="red"><strong>定义一个必须完整完成的任务序列</strong></font>，其中一个失败意味着对该任务序列的进一步处理变得多余。例如：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-2.png" alt="1-2"></p>
+<p>很明显，这个Sequence会让给定的角色穿过一扇门，然后关上它。事实上，这些节点可能会更加抽象，并在生产环境中使用参数。 Walk（位置）、Open（可打开）、Walk（位置）、Close（可打开）</p>
+<p>因此处理顺序如下：</p>
+<p>Sequence -&gt; Walk to Door（<strong>成功</strong>）-&gt; Sequence（<strong>运行</strong>）-&gt; Open Door（<strong>成功</strong>） -&gt; Sequence（<strong>运行</strong>）-&gt; Walk through Door（<strong>成功</strong>） -&gt; Sequence（<strong>运行</strong>）-&gt; Close Door（<strong>成功</strong>）-&gt; Sequence（<strong>成功</strong>）-&gt; 此时Sequence返回<strong>成功</strong>给自己的父级</p>
+<p>如果一个角色未能走到门口，可能是因为路被挡住了，那么尝试打开门或穿过它就不再重要了。该序列在Walk to Door失败的那一刻返回<strong>失败</strong>，然后序列的父级可以优雅地处理失败。</p>
+<p>事实上，<strong>Sequence</strong>能够很自然地适用于角色的行动序列，并且AI行为树倾向于暗示这是它们的唯一用途，所以除了让角色做一系列“事情”外，我们可能并不清楚是否存在多种不同的方法去利用<strong>Sequence</strong>。思考一下：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-3.png" alt="1-3"></p>
+<p>在上面的示例中，我们没有操作列表，而是测试列表。子节点会检查角色<strong>是否饥饿</strong>，<strong>是否携带食物</strong>，<strong>是否处于安全位置</strong>，只有当所有这些都成功返回序列父节点时，角色才会吃食物。使用这样的<strong>Sequence</strong>允许您在执行操作之前测试一个或多个条件。类似于代码中的 if 语句，以及电路中的 AND 门。由于所有子节点都需要成功，并且这些子节点可以是复合节点、装饰节点或叶子节点的任意组合，因此它允许在您的 AI 大脑中进行非常强大的条件检查。</p>
+<p>例如，考虑上一节中提到的<strong>Inverter（PS：反相器）</strong>装饰节点：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-4.png" alt="1-4"></p>
+<p>在功能上与前面的示例相同，在这里我们展示了如何使用<strong>Inverter（反相器）</strong>来否定任何测试，从而为您提供一个NOT<strong>（PS：逻辑门里的非门，可以理解为将原有的结果反过来）</strong>。这意味着您可以大幅减少测试角色或游戏世界条件所需的节点数量。</p>
+<p><strong>Selector（PS：选择组合器，一遇到子结点返回成功则其本身返回成功，否则继续执行下一个子结点，全部失败则其本身返回失败）</strong></p>
+<p>如果说<strong>Sequence</strong>是逻辑门里的AND门，只有所有子节点成功才能返回<strong>成功</strong>。<strong>Selector</strong>则跟它不同，只要它的任何子节点成功且不处理任何其他子节点的情况，<strong>Selector</strong>就会返回<strong>成功</strong>。<strong>Selector</strong>会从它的第一个子节点开始处理，如果失败将继续处理第二个子节点，还是失败的话会继续处理第三个子节点，直到到达成功为止，这时它将立即返回<strong>成功</strong>。如果所有子节点都失败了，它就会返回<strong>失败</strong>。这意味着<strong>Selector</strong>类似于逻辑门里的OR门，并且作为条件语句可以用来检查多个条件，以查看其中任何一个条件是否为真。</p>
+<p>他们的主要力量来自于他们代表多种不同行动方案的能力，按照从最有利到最不利的优先顺序，如果在任何行动方案中成功，则返回成功。这会带来巨大的影响，您可以通过使用选择器非常快速地开发出非常复杂的 AI 行为。</p>
+<p>让我们回到前面的开门<strong>Sequence</strong>示例，为其添加一个<strong>Selector</strong>来解决它。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-5.png" alt="1-5"></p>
+<p>是的，在这里我们只需使用少数几个新节点就可以智能地处理上锁的门。</p>
+<p>那么当处理这个<strong>Selector</strong>时会发生什么呢？</p>
+<p>首先，它将处理<strong>Open Door节点</strong>。最可取的行动是简单地打开门，没有别的其他操作。如果成功了，那么<strong>Selector</strong>就成功了，也无需进一步探索该选择器的任何其他子节点。</p>
+<p>但是，如果门因为某个原因被锁住而无法打开，则<strong>Open Door节点</strong>将失败，将失败传递给父节点<strong>Selector</strong>。此时<strong>Selector</strong>将尝试第二个节点，或第二个更可取的行动方式，即尝试解锁门（<strong>Unlock Door 节点</strong>）。</p>
+<p>在这里，我们创建了另一个<strong>Sequence</strong>（必须完整地完成才能将成功传递回<strong>Selector</strong>），我们首先解锁门，然后尝试打开它。</p>
+<p>如果解锁门的任一步骤失败（也许 AI 没有钥匙，或者没有所需的开锁技能，或者他们设法撬开了锁，但在尝试打开门时发现门被钉死了？）然后它将失败返回给<strong>Selector</strong>，然后<strong>Selector</strong>将尝试第三个行动方案，将直接砸门（<strong>Smash Door 节点</strong>）！</p>
+<p>如果角色不够强大，那么可能会失败。在这种情况下，没有更多的行动路线，<strong>Selector</strong>将失败，这反过来又会导致<strong>Selector</strong>的父节点<strong>Sequence</strong>失败，放弃穿过门的尝试（<strong>不再执行 Walk Through Door节点</strong>）。</p>
+<p>更进一步，也许上面还有一个<strong>Selector</strong>，它会根据这个<strong>Sequence</strong>的失败选择另一个行动方案？</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-6.png" alt="1-6"></p>
+<p>在这里，我们使用最顶层的<strong>Selector</strong>扩展了树。在左侧（最可取的一侧），我们从门进入，如果失败，我们尝试从窗户进入。事实上，实际的实现可能不会是这样的，这个主要是我们在 Project Zomboid 项目中所做工作的简化版，但它说明了这一点。稍后我们将介绍一个更通用和更有用的实现。</p>
+<p>简而言之，我们在这里有一个“进入建筑物”行为，您可以依靠它进入相关建筑物，或者通知其父节点它未能进入。也许没有窗户？在这种情况下，最上面的<strong>Selector</strong>会失败，也许父节点<strong>Selector</strong>会告诉 AI 前往另一座建筑物？</p>
+<p>与之前的尝试相比，行为树中的一个关键因素大大简化了 AI 开发，那就是失败不再是我正在尝试做的任何事情的终点（啊哈，寻路失败了，现在怎么办？），而是决策过程中自然和预期的一部分，自然地符合AI系统的范式。</p>
+<p>您可以针对每种可能的情况设计分层故障保险和替代行动方案。Project Zomboid 的一个例子是 <strong>Ensure Item In Inventory （PS：确保道具在库存中）</strong>行为。</p>
+<p>这个行为接受一个库存物品类型，并使用一个<strong>Selector</strong>来确定几个行动方案，以确保物品在NPC的库存中，包括用不同的物品参数递归调用相同的行为。</p>
+<p>首先，它会检查该物品是否已经在角色的主要顶级库存<strong>（PS：比如随身物品栏）</strong>中。这是理想的情况，因为不需要做任何事情。如果是，则<strong>Selector</strong>成功，因此整个行为成功。<strong>Ensure Item In Inventory</strong>已成功，并且该项目可供使用。</p>
+<p>如果该物品不在角色的物品栏中，那么他们将检查角色携带的任何包或背包的内容。如果找到该物品，他们会将物品从包中转移到他的顶级库存中。当满足成功标准时，这将成功。</p>
+<p>如果还是失败，则<strong>Selector</strong>的第三个分支将确定该物品是否位于角色当前所在的建筑物中。如果是，则角色将前往装有该物品的容器的位置并从中取出物品。再次满足标准，所以成功！</p>
+<p>如果这依旧失败了，那么 NPC 还有一招。它会遍历一个制作配方列表，这些配方会产生它们想要的物品，对于每一个配方，它将遍历对应的制作材料，并依次为每个材料递归调用 <strong>Ensure Item In Inventory</strong> 行为。如果这些都成功了，那么我们就知道 NPC  现在携带了制作所需物品的所有材料。然后，角色将使用这些材料制作物品，然后在满足拥有该物品的标准后返回成功。</p>
+<p>如果上面说的依旧失败，那么 <strong>Ensure Item In Inventory</strong> 行为将失败，没有更多的回退，NPC 只会将该物品添加到所需物品的列表中，以便在搜寻任务期间寻找并在没有该物品的情况下继续生活。</p>
+<p>这样做的结果是，如果 NPC 拥有所需的原料，或者可以从建筑物中获得这些原料，他们就可以在游戏中制作他们想要的任何物品。</p>
+<p>由于行为的递归性质，如果他们自己没有这些材料，那么他们甚至会尝试用更底层的材料来制作它们，必要时会去建筑物里搜索，制作多个阶段的材料以便能够制作他们实际需要的物品。</p>
+<p>突然之间，我们有了一个相当复杂且令人印象深刻的 AI 行为，实际上可以归结为相对简单的节点叠加在一起。 当我们需要NPC来确保库存中有物品时，<strong>Ensure Item In Inventory</strong> 行为就可以在许多其他树中自由使用。</p>
+<p>我敢肯定，在开发过程中的某个时候，我们会采取另一种退路，并允许NPC专门出去寻找他们非常想要的物品，选择一个最有可能包含该物品的掠夺目标。</p>
+<p>优先级列表中可能还有一个方法拥有更高的故障保护措施，那就是去考虑其他可能实现并且与所选项目相同目标的项目。如果有一天我们最终编码支持临时工具，那么寻找不太有效的替代品，像是用石头敲钉子，可能会胜过偷偷穿过城镇进入僵尸出没的五金店。</p>
+<p>由于在开发过程中扩展树很容易，它很容易创建一个“完成工作”的简单行为，然后通过<strong>Selector</strong>使用额外的分支迭代地改进 NPC  行为，以满足更可靠的故障保护和后备措施以减少行为失败的可能。制作后备措施是在很后面才添加的，只是为了进一步装备 NPC 的行为，以进一步帮助他们实现目标。</p>
+<p>此外，如果仔细确定优先级，这些后备措施尽管本质上是脚本化的行为，却赋予 AI 角色以智能问题解决和自然决策的外观。</p>
+<p><strong>Random Selectors &#x2F; Sequences</strong></p>
+<p>我不会详述这些，因为鉴于前面的部分，它们的行为将是显而易见的。<strong>Random Selectors &#x2F; Sequences</strong>的工作方式就像名字所说的那样，只是处理子节点的实际顺序是随机确定的。在没有明确的可能行动方案执行顺序的情况下，这些可用于为 AI 角色增加更多的不可预测性。</p>
+<p><strong>Parallel（PS：并行组合器，全部子节点执行成功则其本身成功，有一个子结点执行失败，则终止其余子结点执行，其本身返回失败。）</strong></p>
+<p><strong>（PS：这个原文没有，做个简单补充）</strong></p>
+<h4 id="装饰节点（Decorator-Nodes）"><a href="#装饰节点（Decorator-Nodes）" class="headerlink" title="装饰节点（Decorator Nodes）"></a>装饰节点（Decorator Nodes）</h4><p><strong>Inverter（反相器）</strong></p>
+<p>我们已经介绍了这一点。简单地说，它们将反转或否定其子节点的结果。成功变成失败，失败变成成功。它们最常用于条件测试。</p>
+<p><strong>Succeeder（成功器）</strong></p>
+<p>无论子节点实际返回了什么，<strong>Succeeder</strong>都将始终返回成功。在您要处理预计会发生故障或预期会发生故障的树的分支但不想放弃处理该分支所在的<strong>Sequence</strong>的情况下，那么这个方法就非常有用。与这种类型的节点相反的节点不是必需的，因为如果父节点需要发生故障，则<strong>Inverter</strong>会将<strong>Succeeder</strong>节点转变为“故障节点”。</p>
+<p><strong>Repeater（重复器）</strong></p>
+<p>每次其子节点返回结果时，<strong>Repeater</strong>都会重新处理它的子节点。这些通常用于树的最底部，以使树连续运行。<strong>Repeater</strong>可以选择在返回到它们父节点之前运行它们子节点的次数。</p>
+<p><strong>Repeat Until Fail（重复直到失败）</strong></p>
+<p>就像<strong>Repeater</strong>一样，这些装饰节点将继续对其子节点进行重新处理。直到子节点最终返回失败，此时它会将成功返回给其父节点。</p>
+<h4 id="数据环境-x2F-上下文（Data-Context）"><a href="#数据环境-x2F-上下文（Data-Context）" class="headerlink" title="数据环境&#x2F;上下文（Data Context）"></a>数据环境&#x2F;上下文（Data Context）</h4><p>这方面的细节取决于行为树的实际实现、使用的编程语言以及所有其他方面，因此我们将使其保持相当抽象和概念性。</p>
+<p>当在 AI 实体上调用行为树时，还会创建一个<strong>Data Context</strong>，**<font color="red">作为被节点解释和改变的任意变量的存储空间</font>*<em>（使用 C# 字典或 java Hash Map中的键值对，或者是 C++ string&#x2F;void</em> STL 映射，虽然我使用 C++ 已经很久了，所以可能有更好的方法来处理这个问题）</p>
+<p>节点将能够读取或写入变量，以便为稍后处理的节点提供<strong>Data Context</strong>，并允许行为树充当一个内聚单元。一旦您开始大量利用这一点，行为树的灵活性和范围就会变得非常令人印象深刻，并且触手可及的真正力量变得显而易见。当我们重新审视我们的门窗行为<strong>（PS：指上面的那个行为逻辑）</strong>时，我们会在一段时间内解决这个问题。</p>
+<h4 id="定义叶子节点（Defining-Leaf-Nodes）"><a href="#定义叶子节点（Defining-Leaf-Nodes）" class="headerlink" title="定义叶子节点（Defining Leaf Nodes）"></a>定义叶子节点（Defining Leaf Nodes）</h4><p>同样，这方面的细节取决于行为树的实际实现。为了给叶子节点提供功能，允许将游戏的特定功能添加到行为树中，大多数系统有两个需要实现的功能。</p>
+<p><strong><code>init</code></strong> -  在其父节点执行期间第一次访问该节点时调用。例如，当轮到节点被处理时，序列将调用它。在父节点完成处理并将结果返回给父节点后，下次触发父节点时才会再次调用它。该函数用于初始化节点并启动节点所表示的操作。使用我们的 Walk 示例，它将检索参数并可能启动寻路工作。</p>
+<p><strong><code>process</code></strong> - 当节点正在处理时，行为树的每一个tick都会调用这个函数。如果此函数返回 <strong>Success</strong> 或  <strong>Failure</strong>，那么它的处理将结束，结果将传递给它的父节点。如果它返回 <strong>Running</strong> ，它将在下一个tick中被重新处理，如此反复，直到它返回 <strong>Success</strong> 或 <strong>Failure</strong>。在 Walk 示例中，它将返回 <strong>Running</strong>，直到寻路成功或失败。</p>
+<p>节点可以具有与其相关联的属性，这些属性可以是显式传递的文字参数，或者是对受控 AI 实体的<strong>Data Context</strong>中的变量的引用。</p>
+<p>我不打算详细介绍实现，因为这不仅取决于语言，还取决于行为树实现，但行为树实例中参数和任意数据存储的概念是相当普遍的。</p>
+<p>例如，我们可以这样描述 Walk 节点：</p>
+<p><strong><code>Walk (character, destination)</code></strong></p>
+<p><strong>-成功（success）：到达目的地</strong><br><strong>-失败（failure）：无法到达目的地</strong><br><strong>-运行中（running）：跑步途中</strong></p>
+<p>在这种情况下，Walk 有两个参数，角色和目的地<strong>（character, destination）</strong>。虽然我们总是很自然地认为运行AI行为的角色是节点的主体，因此不需要作为参数进行明确传递，但最好不要做出这种假设，尽管“Walk”是一个相当安全的赌注。太多时候，特别是在条件节点上，我发现自己不得不重新编码节点，以满足测试另一个角色的状态或以某种方式与他们互动。最好的办法是多走一步，把命令适用的<strong>character</strong>传给它，即使您相当确定只有运行该行为的AI需要它。</p>
+<p>如前所述，通过的位置可以手动输入 X、Y、Z的坐标。但更有可能的是，该位置将由另一个节点作为变量存储在<strong>Data Context</strong>中，以此获取某个游戏对象或建筑物的位置，或者计算NPC附近隐蔽的安全位置。</p>
+<h4 id="堆栈（Stacks）"><a href="#堆栈（Stacks）" class="headerlink" title="堆栈（Stacks）"></a>堆栈（Stacks）</h4><p>当第一次研究行为树时，很自然地将其使用的节点的范围限制在角色行为上，或关于角色或其环境的条件测试。由于这种限制，有时很难看到行为树有多强大。</p>
+<p>当我想到将堆栈操作实现为节点时，它们的实用性对我来说才真正变得明显。所以我在游戏中添加了以下节点实现：</p>
+<p><strong><code>PushToStack(item, stackVar)</code></strong><br><strong><code>PopFromStack(stack, itemVar)</code></strong><br><strong><code>IsEmpty(stack)</code></strong></p>
+<p>例如，如果不存在<strong>Stack</strong>，**<code>PushToStack</code><strong>将创建一个新</strong>Stack<strong>，并将其存储在传递的变量名中，然后将“Item”对象推送到该</strong>Stack**上。</p>
+<p>类似地，**<code>PopFromStack</code><strong>从</strong>Stack<strong>中弹出一个“item”，并将其存储在 itemVar 变量中，如果</strong>Stack**已经为空则失败。</p>
+<p><strong><code>IsEmpty</code></strong> 检查传递的<strong>Stack</strong>是否为空，如果是则返回成功，如果不是则失败。</p>
+<p>有了这些节点，我们现在可以像这样遍历一堆对象：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-7.png" alt="1-7"></p>
+<p>使用<strong>Repeat Until Fail</strong>节点，我们可以反复从<strong>Stack</strong>中弹出一个item并对其进行操作，直到<strong>Stack</strong>为空，此时**<code>PopFromStack</code><strong>将返回一个失败并退出</strong>Repeat Until Fail**节点。</p>
+<p>接下来是我经常使用的其他几个重要实用程序节点：</p>
+<p><strong><code>SetVariable(varName, object)</code></strong></p>
+<p><strong><code>IsNull(object)</code></strong></p>
+<p>当<strong>Composite（复合节点）</strong>和<strong>Decorator（装饰节点）</strong>不能提供足够的粒度来获取我们需要的树上的信息时，这些允许我们在整个行为树中设置任意变量。我们马上就会遇到这样的情况，尽管我毫不怀疑有一种方法可以把它组织起来，这样它就不是必需的了。</p>
+<p>现在假设我们添加了一个名为 <strong>Get Door Stack From Building</strong> 的节点，您在其中传递了一个建筑对象，它检索了该建筑中外部门的对象列表，用这些对象新建和填充一个<strong>Stack</strong>，并设置目标变量。那么，使用我们上面详述的东西，我们可以做什么呢？</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/1-8.png" alt="1-8"></p>
+<p>哎呀。这已经变得有点复杂了，乍一看可能有点难以确定发生了什么，但就像任何语言一样，最终会变得更容易阅读，而可读性方面的损失将在灵活性中获得好处。</p>
+<p>那么这有什么作用呢？好吧，一开始它可能有点让人头疼，但是一旦你熟悉了节点的操作方式以及了解**成功（Success）和失败(Failure) **是如何贯穿整颗树的，它就会变得更容易理解。如果我的描述不够充分的话，我可能会扩展本节，以显示在树上的行走过程。</p>
+<p>简而言之，这是一种行为，它将检索并尝试进入建筑物的每一个门，如果角色成功进入任何一个门，则返回成功，如果没有成功，则返回失败。</p>
+<p>首先，它抓取一个<strong>Stack</strong>，其中包含进入建筑的每一个入口。然后它调用<strong>Repeat Until Fail</strong>节点，该节点将继续重新处理其子节点，直到其子节点返回失败。</p>
+<p>那个子节点，一个<strong>Sequence</strong>，将首先从<strong>Stack</strong>中弹出一扇门，将其存储在门变量中。</p>
+<p>如果<strong>Stack</strong>是空的，因为没有门，那么这个节点就会失败，并成功脱离<strong>Repeat Until Fail</strong>（Until Fail节点必然是返回成功），继续执行父<strong>Sequence</strong>，在那里我们对<code>usedDoor</code>进行倒置的**<code>IsNull</code>**检查。如果<code>usedDoor</code>是空的（它肯定是空的，因为它没有机会设置该变量），这将导致整个行为失败。</p>
+<p>如果<strong>Stack</strong>确实设法抓住了一扇门，那么它就会调用另一个<strong>Sequence</strong>（有一个反相器），该<strong>Sequence</strong>将试图走到门前，打开它并穿过它。</p>
+<p>如果NPC通过任何可用的手段都无法穿过这扇门（门被锁住了，而NPC太弱，无法将其打破），那么<strong>Selector</strong>将失败，并将失败返回给父节点，即<strong>Inverter（反相器）</strong>，它将失败反转为成功，这意味着它没有逃过<strong>Repeat Until Fail</strong>，后者又会重复并重新调用其<strong>Sequence</strong>，从<strong>Stack</strong>中弹出下一个门，NPC将尝试下一个门。</p>
+<p>如果NPC成功地穿过一扇门，那么它将在<code>usedDoor</code>变量中设置该门，这时，<strong>Sequence</strong>将返回成功。这个成功将被<strong>Inverter（反相器）</strong>倒置成一个失败，这样我们就可以摆脱<strong>Repeat Until Fail</strong>。</p>
+<p>在这种情况下，我们在 <code>usedDoor</code> 上的 <strong><code>IsNull</code></strong> 检查失败，因为它不为空。这被<strong>Inverter（反相器）</strong>反转为成功，从而导致整个行为成功。父节点知道 NPC成功地找到了一扇门，并通过它进入了建筑物。</p>
+<p>如果失败了，也可以使用<strong>Get Window Stack From Building</strong>节点重复同样的过程，以对 Windows<strong>（PS：这里指门打不开，去找窗户）</strong>重复该过程。或者使用更多节点进行<strong>Stack</strong>操作，也许您可以紧接着调用<strong>Get Door Stack From Building</strong>和<strong>Get Window Stack From Building</strong>，并将窗户附加到门的<strong>Stack</strong>末尾，并在同一个<strong>Repeat Until Fail</strong>中处理所有的窗户，假设Open, Unlock, Smash, Close是在门和窗户的通用基础上操作的，或者运行时类型检查它们所操作的对象。</p>
+<p>最后，你可能会注意到我添加了一个<strong>Succeeder（成功器）</strong> 来作为<strong>close door</strong>节点的父节点。这是因为我突然想到，如果一个NPC砸门，他们肯定会关不上门。</p>
+<p>如果没有<strong>Succeeder（成功器）</strong>，这将导致序列在设置 <code>usedDoor </code> 变量并移动到下一个门之前失败。另一个解决方案是，即使门被打碎，关闭门也会被设计为总是成功。然而，我们希望保留测试关门成功的能力（例如，在 “安全屋 “行为中使用该节点会认为关门失败是因为它不再在铰链上，这与情况相当相关！ )，因此如果需要该行为，<strong>Succeeder（成功器）</strong> 可以确保失败被忽略。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">migame</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">http://example.com/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91AI%E4%B9%8B%E8%A1%8C%E4%B8%BA%E6%A0%91%EF%BC%9A%E5%AE%83%E4%BB%AC%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">migame的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/">架构认知</a><a class="post-meta__tags" href="/tags/%E8%A1%8C%E4%B8%BA%E6%A0%91/">行为树</a></div><div class="post_share"><div class="social-share" data-image="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/10/Unity/Playable/Timeline%E9%97%AE%E9%A2%98%E4%BF%AE%E5%A4%8D%E2%80%94%E2%80%94%E8%A7%A3%E5%86%B3Timeline%E6%9C%80%E5%90%8E%E4%B8%80%E5%B8%A7%E4%BB%8EPlayable%E8%BE%93%E5%85%A5%E7%AB%AF%E8%8E%B7%E5%8F%96Clip%E6%9D%83%E9%87%8D%E4%B8%BA0%E7%9A%84%E9%97%AE%E9%A2%98/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Timeline问题修复——解决Timeline最后一帧从Playable输入端获取Clip权重为0的问题</div></div></a></div><div class="next-post pull-right"><a href="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%9C%E7%94%A8/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">设计模式的作用</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/13/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%A1%8C%E4%B8%BA%E6%A0%91/NPBehave%E8%A1%8C%E4%B8%BA%E6%A0%91/" title="NPBehave行为树"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-13</div><div class="title">NPBehave行为树</div></div></a></div><div><a href="/2022/06/17/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/Unity%E6%B8%B8%E6%88%8F%E6%A1%86%E6%9E%B6/%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/" title="框架设计"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-06-17</div><div class="title">框架设计</div></div></a></div><div><a href="/2022/07/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/Unity%E6%B8%B8%E6%88%8F%E6%A1%86%E6%9E%B6/%E8%A1%A5%E9%97%B4%E5%8A%A8%E7%94%BB/" title="补间动画（MTween）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-09</div><div class="title">补间动画（MTween）</div></div></a></div><div><a href="/2022/03/17/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E7%BB%8F%E9%AA%8C%E6%80%9D%E8%80%83/%E5%B7%A5%E5%85%B7%E6%89%A9%E5%B1%95%E4%BC%98%E5%8C%96%E6%8A%80%E5%B7%A7/" title="工具扩展优化技巧"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-17</div><div class="title">工具扩展优化技巧</div></div></a></div><div><a href="/2022/08/11/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E7%8A%B6%E6%80%81%E6%9C%BA/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91%E4%B8%8D%E9%9C%80%E8%A6%81%E5%86%8D%E6%AC%A1%E5%88%9B%E5%BB%BA%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%9A%E5%A6%82%E4%BD%95%E9%87%8D%E6%96%B0%E5%88%A9%E7%94%A8Unity%E7%9A%84Animator/" title="【转载+翻译】不需要再次创建有限状态机：如何重新利用Unity的Animator"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-08-11</div><div class="title">【转载+翻译】不需要再次创建有限状态机：如何重新利用Unity的Animator</div></div></a></div><div><a href="/2022/01/09/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" title="单例模式"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-09</div><div class="title">单例模式</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">migame</div><div class="author-info__description">人间有味是清欢。</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">95</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">33</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/mlValor"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">愿有志者,事竟成。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D%EF%BC%88Introduction%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">介绍（Introduction）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%EF%BC%88Basics%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">基础知识（Basics）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%A9%B1%E5%8A%A8VS%E4%BB%A3%E7%A0%81%E9%A9%B1%E5%8A%A8%EF%BC%88Data-Driven-vs-Code-Driven%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">数据驱动VS代码驱动（Data Driven vs Code Driven）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86%EF%BC%88Tree-Traversal%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">树的遍历（Tree Traversal）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%81%E5%8A%A8%EF%BC%88Flow%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">流动（Flow）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%8D%E5%90%88%E8%8A%82%E7%82%B9%EF%BC%88Composite%EF%BC%89"><span class="toc-number">5.1.</span> <span class="toc-text">复合节点（Composite）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A3%85%E9%A5%B0%E8%8A%82%E7%82%B9%EF%BC%88Decorator-Nodes%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">装饰节点（Decorator Nodes）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%8E%AF%E5%A2%83-x2F-%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88Data-Context%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">数据环境&#x2F;上下文（Data Context）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%EF%BC%88Defining-Leaf-Nodes%EF%BC%89"><span class="toc-number">5.4.</span> <span class="toc-text">定义叶子节点（Defining Leaf Nodes）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86%E6%A0%88%EF%BC%88Stacks%EF%BC%89"><span class="toc-number">5.5.</span> <span class="toc-text">堆栈（Stacks）</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/API%E5%A4%87%E5%BF%98%E5%BD%95/" title="API备忘录"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="API备忘录"/></a><div class="content"><a class="title" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/API%E5%A4%87%E5%BF%98%E5%BD%95/" title="API备忘录">API备忘录</a><time datetime="2022-08-11T12:27:23.000Z" title="发表于 2022-08-11 20:27:23">2022-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/11/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E7%8A%B6%E6%80%81%E6%9C%BA/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91%E4%B8%8D%E9%9C%80%E8%A6%81%E5%86%8D%E6%AC%A1%E5%88%9B%E5%BB%BA%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%9A%E5%A6%82%E4%BD%95%E9%87%8D%E6%96%B0%E5%88%A9%E7%94%A8Unity%E7%9A%84Animator/" title="【转载+翻译】不需要再次创建有限状态机：如何重新利用Unity的Animator"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【转载+翻译】不需要再次创建有限状态机：如何重新利用Unity的Animator"/></a><div class="content"><a class="title" href="/2022/08/11/%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5/%E7%8A%B6%E6%80%81%E6%9C%BA/%E3%80%90%E8%BD%AC%E8%BD%BD+%E7%BF%BB%E8%AF%91%E3%80%91%E4%B8%8D%E9%9C%80%E8%A6%81%E5%86%8D%E6%AC%A1%E5%88%9B%E5%BB%BA%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%9A%E5%A6%82%E4%BD%95%E9%87%8D%E6%96%B0%E5%88%A9%E7%94%A8Unity%E7%9A%84Animator/" title="【转载+翻译】不需要再次创建有限状态机：如何重新利用Unity的Animator">【转载+翻译】不需要再次创建有限状态机：如何重新利用Unity的Animator</a><time datetime="2022-08-11T11:41:20.767Z" title="发表于 2022-08-11 19:41:20">2022-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/Unity%E6%9C%AC%E5%9C%B0%E7%A6%BB%E7%BA%BF%E6%96%87%E6%A1%A3%E5%BC%80%E5%90%AF%E5%8D%A1%E9%A1%BF%E8%A7%A3%E5%86%B3/" title="Unity本地离线文档开启卡顿解决"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Unity本地离线文档开启卡顿解决"/></a><div class="content"><a class="title" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/Unity%E6%9C%AC%E5%9C%B0%E7%A6%BB%E7%BA%BF%E6%96%87%E6%A1%A3%E5%BC%80%E5%90%AF%E5%8D%A1%E9%A1%BF%E8%A7%A3%E5%86%B3/" title="Unity本地离线文档开启卡顿解决">Unity本地离线文档开启卡顿解决</a><time datetime="2022-08-11T11:36:32.000Z" title="发表于 2022-08-11 19:36:32">2022-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/Unity%E5%9B%9B%E5%85%83%E6%95%B0%EF%BC%8C%E6%AC%A7%E6%8B%89%E8%A7%92%EF%BC%8C%E7%9F%A9%E9%98%B5/" title="Unity四元数，欧拉角，矩阵欧拉角"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Unity四元数，欧拉角，矩阵欧拉角"/></a><div class="content"><a class="title" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/Unity%E5%9B%9B%E5%85%83%E6%95%B0%EF%BC%8C%E6%AC%A7%E6%8B%89%E8%A7%92%EF%BC%8C%E7%9F%A9%E9%98%B5/" title="Unity四元数，欧拉角，矩阵欧拉角">Unity四元数，欧拉角，矩阵欧拉角</a><time datetime="2022-08-11T11:36:32.000Z" title="发表于 2022-08-11 19:36:32">2022-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/Unity%E7%89%B9%E6%AE%8A%E6%96%87%E4%BB%B6%E5%A4%B9%E5%90%8D%E7%A7%B0%E8%AF%B4%E6%98%8E/" title="Unity特殊文件夹名称说明"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Unity特殊文件夹名称说明"/></a><div class="content"><a class="title" href="/2022/08/11/Unity/%E7%9F%A5%E8%AF%86%E7%82%B9/Unity%E7%89%B9%E6%AE%8A%E6%96%87%E4%BB%B6%E5%A4%B9%E5%90%8D%E7%A7%B0%E8%AF%B4%E6%98%8E/" title="Unity特殊文件夹名称说明">Unity特殊文件夹名称说明</a><time datetime="2022-08-11T11:36:32.000Z" title="发表于 2022-08-11 19:36:32">2022-08-11</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/%E9%BB%98%E8%AE%A4%E5%B0%81%E9%9D%A2.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 By migame</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
